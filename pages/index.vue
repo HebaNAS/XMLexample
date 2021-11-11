@@ -1,77 +1,105 @@
 <template>
   <v-row justify="center" align="center">
     <v-col cols="12" sm="8" md="6">
-      <v-card class="logo py-4 d-flex justify-center">
-        <NuxtLogo />
-        <VuetifyLogo />
-      </v-card>
       <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
+        <v-card-title class="headline"> Please Fill this Form </v-card-title>
         <v-card-text>
-          <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower developers to create amazing applications.</p>
-          <p>
-            For more information on Vuetify, check out the <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              documentation
-            </a>.
-          </p>
-          <p>
-            If you have questions, please join the official <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord
-            </a>.
-          </p>
-          <p>
-            Find a bug? Report it on the github <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board
-            </a>.
-          </p>
-          <p>Thank you for developing with Vuetify and I look forward to bringing more exciting features in the future.</p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3">
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
+          <v-form
+            v-model="valid"
+            action="/add"
+            method="POST"
+            @submit.prevent="add"
           >
-            Nuxt Documentation
-          </a>
-          <br>
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
+            <v-container>
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="firstname"
+                    :rules="nameRules"
+                    :counter="10"
+                    label="First name"
+                    required
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="lastname"
+                    :rules="nameRules"
+                    :counter="10"
+                    label="Last name"
+                    required
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="email"
+                    :rules="emailRules"
+                    label="E-mail"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="primary"
-            nuxt
-            to="/inspire"
-          >
+          <v-btn color="primary" type="submit" @click.prevent="add()">
             Continue
           </v-btn>
         </v-card-actions>
       </v-card>
+      <v-card>
+        <v-card-title>Data Sent</v-card-title>
+        <v-card-text>
+          <v-form>
+            <v-textarea :value="xml"> </v-textarea>
+          </v-form>
+        </v-card-text>
+      </v-card>
     </v-col>
   </v-row>
 </template>
+
+<script>
+export default {
+  data: () => ({
+    xml: "Client: ",
+    valid: false,
+    firstname: "",
+    lastname: "",
+    nameRules: [
+      (v) => !!v || "Name is required",
+      (v) => v.length <= 10 || "Name must be less than 10 characters",
+    ],
+    email: "",
+    emailRules: [
+      (v) => !!v || "E-mail is required",
+      (v) => /.+@.+/.test(v) || "E-mail must be valid",
+    ],
+  }),
+  methods: {
+    add() {
+      const qs = require("qs");
+
+      const xmlBodyStr = `<?xml version="1.0" encoding="UTF-8"?><Employee><Name>${this.firstname}${this.lastname}</Name><Email>${this.email}</Email></Employee>`;
+
+      this.$axios
+        .post("add", xmlBodyStr, {
+          responseType: "text",
+          headers: {
+            "Content-Type": "text/xml",
+          },
+        })
+        .then((response) => {
+          this.xml = xmlBodyStr;
+        })
+        .catch((e) => {
+          console.log("Error: ", e);
+        });
+    },
+  },
+};
+</script>

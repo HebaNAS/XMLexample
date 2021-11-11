@@ -9,11 +9,17 @@ module.exports = {
     requireConfigFile: false
   },
   extends: [
-    '@nuxtjs',
-    'plugin:nuxt/recommended'
+//	'prettier/@nuxtjs',
+//	'eslint:recommended',
+//    '@nuxtjs',
+    'plugin:nuxt/recommended',
+	'plugin:prettier/recommended'
   ],
   plugins: [
+	'prettier'
   ],
   // add your custom rules here
-  rules: {}
+  rules: {
+	'prettier/prettier': ['error']
+  }
 }
